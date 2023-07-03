@@ -7,7 +7,7 @@ const SERVER_ERROR = 500;
 class RequestError extends Error {
   constructor(message, name) {
     super(message);
-    this.name = statusCode;
+    this.errorName = name;
     this.status = INCORRECT_DATA_ERROR;
   }
 }
