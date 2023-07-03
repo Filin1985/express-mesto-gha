@@ -82,7 +82,7 @@ module.exports.addLikeToCard = async (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     );
-    if (!user) {
+    if (!cardWithLike) {
       throw new NotFoundError("Такого id не существует!", "NotFoundError");
     }
     res.send({ cardWithLike });
@@ -111,17 +111,18 @@ module.exports.deleteLikeFromCard = async (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     );
+    if (!cardWithoutLike) {
+      throw new NotFoundError("Такого id не существует!", "NotFoundError");
+    }
     res.send({ cardWithoutLike });
   } catch (err) {
     if (err.name === "CastError") {
       return res
-        .status(NOT_FOUND_ERROR)
+        .status(INCORRECT_DATA_ERROR)
         .send({ message: "Запрашиваемая карточка не найдена!" });
     }
-    if (err.name === "ValidationError") {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({ message: "При обновлении карточки переданы неверные данные!" });
+    if (err.errorName === "NotFoundError") {
+      return res.status(err.status).send({ message: err.message });
     }
     console.log(
       `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
