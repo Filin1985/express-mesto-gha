@@ -26,7 +26,7 @@ app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
 app.get("*", function (req, res) {
-  res.send("Такого запроса не существует!", 404);
+  res.status(404).send({ message: "Такого запроса нет!" });
 });
 
 app.listen(3000, () => {
