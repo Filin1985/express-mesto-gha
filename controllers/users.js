@@ -20,14 +20,6 @@ class RequestError extends Error {
   }
 }
 
-class ServerError extends Error {
-  constructor(message, name) {
-    super(message);
-    this.name = name;
-    this.status = SERVER_ERROR;
-  }
-}
-
 module.exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({});
