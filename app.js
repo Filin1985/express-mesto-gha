@@ -25,6 +25,10 @@ app.use((req, res, next) => {
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
+app.get("*", function (req, res) {
+  res.send("Такого запроса не существует!", 404);
+});
+
 app.listen(3000, () => {
   console.log("Server are running!");
 });
