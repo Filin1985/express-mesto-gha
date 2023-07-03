@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
 
-app.get("*", function (req, res) {
+app.all("*", function (req, res) {
   res.status(404).send({ message: "Такого запроса нет!" });
 });
 
