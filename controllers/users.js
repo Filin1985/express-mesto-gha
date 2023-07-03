@@ -92,9 +92,14 @@ module.exports.updateUserProfile = async (req, res) => {
   try {
     const owner = req.user._id;
     const { name, about } = req.body;
-    if (name.length < 2) {
+    const isValidLength =
+      name.length > 2 &&
+      name.length < 30 &&
+      about.length > 2 &&
+      about.length < 30;
+    if (!isValidLength) {
       throw new RequestError(
-        "Количество символов в имени не должно быть меньше 2!",
+        "Количество символов в полях не должны быть меньше 2 и больше 30!",
         "RequestError"
       );
     }
