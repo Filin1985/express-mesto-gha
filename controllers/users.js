@@ -97,7 +97,6 @@ module.exports.updateUserProfile = async (req, res) => {
       name?.length < 30 &&
       about?.length > 2 &&
       about?.length < 30;
-    console.log(isValidLength);
     if (!isValidLength) {
       throw new RequestError(
         "Количество символов в полях не должны быть меньше 2 и больше 30!",
