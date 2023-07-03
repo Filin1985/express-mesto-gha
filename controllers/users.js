@@ -8,7 +8,7 @@ class RequestError extends Error {
   constructor(message, name) {
     super(message);
     this.errorName = name;
-    this.status = INCORRECT_DATA_ERROR;
+    this.status = NOT_FOUND_ERROR;
   }
 }
 
@@ -57,7 +57,7 @@ module.exports.getUserById = async (req, res) => {
         .send({ message: "Запрашиваемый пользователь не найден!" });
     }
     if (err.errorName === "RequestError") {
-      return res.status(INCORRECT_DATA_ERROR).send({ message: err.message });
+      return res.status(err.status).send({ message: err.message });
     }
     console.log(
       `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`
