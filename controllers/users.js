@@ -93,10 +93,11 @@ module.exports.updateUserProfile = async (req, res) => {
     const owner = req.user._id;
     const { name, about } = req.body;
     const isValidLength =
-      name.length > 2 &&
-      name.length < 30 &&
-      about.length > 2 &&
-      about.length < 30;
+      name?.length > 2 &&
+      name?.length < 30 &&
+      about?.length > 2 &&
+      about?.length < 30;
+    console.log(isValidLength);
     if (!isValidLength) {
       throw new RequestError(
         "Количество символов в полях не должны быть меньше 2 и больше 30!",
@@ -128,7 +129,7 @@ module.exports.updateUserProfile = async (req, res) => {
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка червера!" });
+      .send({ message: "Внутрення ошибка сервера!" });
   }
 };
 
