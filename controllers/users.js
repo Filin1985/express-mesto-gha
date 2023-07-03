@@ -4,7 +4,7 @@ const INCORRECT_DATA_ERROR = 400;
 const NOT_FOUND_ERROR = 404;
 const SERVER_ERROR = 500;
 
-class RequestError extends Error {
+class NotFoundError extends Error {
   constructor(message, name) {
     super(message);
     this.errorName = name;
@@ -12,11 +12,11 @@ class RequestError extends Error {
   }
 }
 
-class NotFoundError extends Error {
+class RequestError extends Error {
   constructor(message, name) {
     super(message);
-    this.name = name;
-    this.status = NOT_FOUND_ERROR;
+    this.errorName = name;
+    this.status = INCORRECT_DATA_ERROR;
   }
 }
 
@@ -47,7 +47,7 @@ module.exports.getUserById = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById({ _id: userId });
     if (!user) {
-      throw new RequestError("Такого id не существует!", "RequestError");
+      throw new NotFoundError("Такого id не существует!", "NotFoundError");
     }
     res.send({ user });
   } catch (err) {
@@ -56,7 +56,7 @@ module.exports.getUserById = async (req, res) => {
         .status(INCORRECT_DATA_ERROR)
         .send({ message: "Запрашиваемый пользователь не найден!" });
     }
-    if (err.errorName === "RequestError") {
+    if (err.errorName === "NotFoundError") {
       return res.status(err.status).send({ message: err.message });
     }
     console.log(
@@ -91,6 +91,13 @@ module.exports.createNewUser = async (req, res) => {
 module.exports.updateUserProfile = async (req, res) => {
   try {
     const owner = req.user._id;
+    const { name, about } = req.body;
+    if (name.length < 2) {
+      throw new RequestError(
+        "Количество символов в имени не должно быть меньше 2!",
+        "RequestError"
+      );
+    }
     const userForUpdate = await User.findById({ _id: owner });
     if (userForUpdate) {
       const updatedUser = await User.findByIdAndUpdate(
@@ -107,6 +114,9 @@ module.exports.updateUserProfile = async (req, res) => {
       return res.status(INCORRECT_DATA_ERROR).send({
         message: "При обновлении пользователя переданы неверные данные!",
       });
+    }
+    if (err.errorName === "RequestError") {
+      return res.status(err.status).send({ message: err.message });
     }
     console.log(
       `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
