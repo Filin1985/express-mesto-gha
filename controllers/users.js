@@ -53,7 +53,7 @@ module.exports.getUserById = async (req, res) => {
   } catch (err) {
     if (err.name === "CastError") {
       return res
-        .status(NOT_FOUND_ERROR)
+        .status(INCORRECT_DATA_ERROR)
         .send({ message: "Запрашиваемый пользователь не найден!" });
     }
     if (err.errorName === "RequestError") {
