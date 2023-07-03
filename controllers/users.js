@@ -4,6 +4,30 @@ const INCORRECT_DATA_ERROR = 400;
 const NOT_FOUND_ERROR = 404;
 const SERVER_ERROR = 500;
 
+class RequestError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.statusCode = 400;
+  }
+}
+
+class NotFoundError extends Error {
+  constructor(message, name) {
+    super(message);
+    this.errorName = name;
+    this.statusCode = 404;
+  }
+}
+
+class ServerError extends Error {
+  constructor(message, name) {
+    super(message);
+    this.errorName = name;
+    this.statusCode = 500;
+  }
+}
+
 module.exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({});
@@ -14,7 +38,7 @@ module.exports.getUsers = async (req, res) => {
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка червера!" });
+      .send({ message: "Внутрення ошибка cервера!" });
   }
 };
 
@@ -22,15 +46,18 @@ module.exports.getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById({ _id: userId });
+    if (!user) {
+      throw new NotFoundError("Такого id не существует!", "NotFoundError");
+    }
     res.send({ user });
   } catch (err) {
     if (err.name === "CastError") {
       return res
-        .status(NOT_FOUND_ERROR)
+        .status(INCORRECT_DATA_ERROR)
         .send({ message: "Запрашиваемый пользователь не найден!" });
     }
     console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
+      `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`
     );
     return res
       .status(SERVER_ERROR)
@@ -45,11 +72,9 @@ module.exports.createNewUser = async (req, res) => {
     res.send({ newUser });
   } catch (err) {
     if (err.name === "ValidationError") {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({
-          message: "При создании пользователя переданы неверные данные!",
-        });
+      return res.status(INCORRECT_DATA_ERROR).send({
+        message: "При создании пользователя переданы неверные данные!",
+      });
     }
     console.log(
       `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
@@ -76,11 +101,9 @@ module.exports.updateUserProfile = async (req, res) => {
     }
   } catch (err) {
     if (err.name === "ValidationError") {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({
-          message: "При обновлении пользователя переданы неверные данные!",
-        });
+      return res.status(INCORRECT_DATA_ERROR).send({
+        message: "При обновлении пользователя переданы неверные данные!",
+      });
     }
     console.log(
       `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
@@ -108,11 +131,9 @@ module.exports.updateUserAvatar = async (req, res) => {
     }
   } catch (err) {
     if (err.name === "ValidationError") {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({
-          message: "При обновлении пользователя переданы неверные данные!",
-        });
+      return res.status(INCORRECT_DATA_ERROR).send({
+        message: "При обновлении пользователя переданы неверные данные!",
+      });
     }
     console.log(
       `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
