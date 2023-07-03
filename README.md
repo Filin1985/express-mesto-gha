@@ -17,4 +17,4 @@
 
 ## Ссылка на проект
 
-(https://github.com/Filin1985/express-mesto-gha)[https://github.com/Filin1985/express-mesto-gha]
+[Ссылка на проект](https://github.com/Filin1985/express-mesto-gha)
