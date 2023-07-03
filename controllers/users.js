@@ -56,12 +56,15 @@ module.exports.getUserById = async (req, res) => {
         .status(INCORRECT_DATA_ERROR)
         .send({ message: "Запрашиваемый пользователь не найден!" });
     }
+    if (err.errorName === "NotFoundError") {
+      return res.status(INCORRECT_DATA_ERROR).send({ message: err.message });
+    }
     console.log(
       `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка червера!" });
+      .send({ message: "Внутрення ошибка сервера!" });
   }
 };
 
