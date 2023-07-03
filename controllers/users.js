@@ -5,26 +5,26 @@ const NOT_FOUND_ERROR = 404;
 const SERVER_ERROR = 500;
 
 class RequestError extends Error {
-  constructor(message, statusCode) {
+  constructor(message, name) {
     super(message);
-    this.statusCode = statusCode;
-    this.statusCode = 400;
+    this.name = statusCode;
+    this.status = INCORRECT_DATA_ERROR;
   }
 }
 
 class NotFoundError extends Error {
   constructor(message, name) {
     super(message);
-    this.errorName = name;
-    this.statusCode = 404;
+    this.name = name;
+    this.status = NOT_FOUND_ERROR;
   }
 }
 
 class ServerError extends Error {
   constructor(message, name) {
     super(message);
-    this.errorName = name;
-    this.statusCode = 500;
+    this.name = name;
+    this.status = SERVER_ERROR;
   }
 }
 
@@ -47,23 +47,23 @@ module.exports.getUserById = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById({ _id: userId });
     if (!user) {
-      throw new NotFoundError("Такого id не существует!", "NotFoundError");
+      throw new RequestError("Такого id не существует!", "RequestError");
     }
     res.send({ user });
   } catch (err) {
     if (err.name === "CastError") {
       return res
-        .status(INCORRECT_DATA_ERROR)
+        .status(NOT_FOUND_ERROR)
         .send({ message: "Запрашиваемый пользователь не найден!" });
     }
-    if (err.errorName === "NotFoundError") {
+    if (err.errorName === "RequestError") {
       return res.status(INCORRECT_DATA_ERROR).send({ message: err.message });
     }
     console.log(
       `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`
     );
     return res
-      .status(SERVER_ERROR)
+      .status(err.message)
       .send({ message: "Внутрення ошибка сервера!" });
   }
 };
