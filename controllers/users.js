@@ -1,24 +1,8 @@
+const { SERVER_ERROR, INCORRECT_DATA_ERROR } = require('../errors/config');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { RequestError } = require('../errors/RequestError');
+
 const User = require("../models/user");
-
-const INCORRECT_DATA_ERROR = 400;
-const NOT_FOUND_ERROR = 404;
-const SERVER_ERROR = 500;
-
-class NotFoundError extends Error {
-  constructor(message, name) {
-    super(message);
-    this.errorName = name;
-    this.status = NOT_FOUND_ERROR;
-  }
-}
-
-class RequestError extends Error {
-  constructor(message, name) {
-    super(message);
-    this.errorName = name;
-    this.status = INCORRECT_DATA_ERROR;
-  }
-}
 
 module.exports.getUsers = async (req, res) => {
   try {
@@ -64,7 +48,7 @@ module.exports.createNewUser = async (req, res) => {
   try {
     const { name, about, avatar } = req.body;
     const newUser = await User.create({ name, about, avatar });
-    res.send({ newUser });
+    res.status(201).send({ newUser });
   } catch (err) {
     if (err.name === "ValidationError") {
       return res.status(INCORRECT_DATA_ERROR).send({

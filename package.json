@@ -12,10 +12,16 @@
   "author": "Marat Ikhsanov",
   "license": "ISC",
   "dependencies": {
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.27.5",
+    "body-parser": "^1.20.2",
     "express": "^4.18.2",
+    "helmet": "^7.0.0",
     "mongoose": "^7.3.1",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.44.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5"
   }
 }
