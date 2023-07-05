@@ -2,7 +2,7 @@ const { SERVER_ERROR, INCORRECT_DATA_ERROR } = require('../errors/config');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { RequestError } = require('../errors/RequestError');
 
-const User = require("../models/user");
+const User = require('../models/user');
 
 module.exports.getUsers = async (req, res) => {
   try {
@@ -10,11 +10,11 @@ module.exports.getUsers = async (req, res) => {
     res.send({ users });
   } catch (err) {
     console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
+      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка cервера!" });
+      .send({ message: 'Внутрення ошибка cервера!' });
   }
 };
 
@@ -23,24 +23,24 @@ module.exports.getUserById = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById({ _id: userId });
     if (!user) {
-      throw new NotFoundError("Такого id не существует!", "NotFoundError");
+      throw new NotFoundError('Такого id не существует!', 'NotFoundError');
     }
     res.send({ user });
   } catch (err) {
-    if (err.name === "CastError") {
+    if (err.name === 'CastError') {
       return res
         .status(INCORRECT_DATA_ERROR)
-        .send({ message: "Запрашиваемый пользователь не найден!" });
+        .send({ message: 'Запрашиваемый пользователь не найден!' });
     }
-    if (err.errorName === "NotFoundError") {
+    if (err.errorName === 'NotFoundError') {
       return res.status(err.status).send({ message: err.message });
     }
     console.log(
-      `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`
+      `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`,
     );
     return res
       .status(err.message)
-      .send({ message: "Внутрення ошибка сервера!" });
+      .send({ message: 'Внутрення ошибка сервера!' });
   }
 };
 
@@ -50,17 +50,17 @@ module.exports.createNewUser = async (req, res) => {
     const newUser = await User.create({ name, about, avatar });
     res.status(201).send({ newUser });
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       return res.status(INCORRECT_DATA_ERROR).send({
-        message: "При создании пользователя переданы неверные данные!",
+        message: 'При создании пользователя переданы неверные данные!',
       });
     }
     console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
+      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка червера!" });
+      .send({ message: 'Внутрення ошибка червера!' });
   }
 };
 
@@ -68,15 +68,14 @@ module.exports.updateUserProfile = async (req, res) => {
   try {
     const owner = req.user._id;
     const { name, about } = req.body;
-    const isValidLength =
-      name?.length > 2 &&
-      name?.length < 30 &&
-      about?.length > 2 &&
-      about?.length < 30;
+    const isValidLength = name?.length > 2
+    && name?.length < 30
+      && about?.length > 2
+      && about?.length < 30;
     if (!isValidLength) {
       throw new RequestError(
-        "Количество символов в полях не должны быть меньше 2 и больше 30!",
-        "RequestError"
+        'Количество символов в полях не должны быть меньше 2 и больше 30!',
+        'RequestError',
       );
     }
     const userForUpdate = await User.findById({ _id: owner });
@@ -84,27 +83,27 @@ module.exports.updateUserProfile = async (req, res) => {
       const updatedUser = await User.findByIdAndUpdate(
         { _id: owner },
         { ...req.body },
-        { new: true }
+        { new: true },
       );
       res.send({ updatedUser });
     } else {
-      throw new Error(`У вас нет прав на редактирование данного пользователя!`);
+      throw new Error('У вас нет прав на редактирование данного пользователя!');
     }
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       return res.status(INCORRECT_DATA_ERROR).send({
-        message: "При обновлении пользователя переданы неверные данные!",
+        message: 'При обновлении пользователя переданы неверные данные!',
       });
     }
-    if (err.errorName === "RequestError") {
+    if (err.errorName === 'RequestError') {
       return res.status(err.status).send({ message: err.message });
     }
     console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
+      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка сервера!" });
+      .send({ message: 'Внутрення ошибка сервера!' });
   }
 };
 
@@ -116,24 +115,24 @@ module.exports.updateUserAvatar = async (req, res) => {
     if (userForUpdate) {
       const updatedUser = await User.findByIdAndUpdate(
         { _id: owner },
-        { avatar: avatar },
-        { new: true }
+        { avatar },
+        { new: true },
       );
       res.send({ updatedUser });
     } else {
-      throw new Error(`У вас нет прав на редактирование данного пользователя!`);
+      throw new Error('У вас нет прав на редактирование данного пользователя!');
     }
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       return res.status(INCORRECT_DATA_ERROR).send({
-        message: "При обновлении пользователя переданы неверные данные!",
+        message: 'При обновлении пользователя переданы неверные данные!',
       });
     }
     console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`
+      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
     );
     return res
       .status(SERVER_ERROR)
-      .send({ message: "Внутрення ошибка червера!" });
+      .send({ message: 'Внутрення ошибка червера!' });
   }
 };

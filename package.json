@@ -20,6 +20,8 @@
     "validator": "^13.9.0"
   },
   "devDependencies": {
+    "body-parser": "^1.20.2",
+    "helmet": "^7.0.0",
     "eslint": "^8.44.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5"
