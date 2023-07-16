@@ -1,70 +1,45 @@
-const { SERVER_ERROR, INCORRECT_DATA_ERROR } = require('../errors/config');
 const { NotFoundError } = require('../errors/NotFoundError');
 
 const Card = require('../models/card');
 
-module.exports.getCards = async (req, res) => {
+module.exports.getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     res.send({ cards });
   } catch (err) {
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    next(err);
   }
 };
 
-module.exports.createNewCard = async (req, res) => {
+module.exports.createNewCard = async (req, res, next) => {
   try {
     const owner = req.user._id;
     const { name, link } = req.body;
     const newCard = await Card.create({ name, link, owner });
     res.status(201).send({ newCard });
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({ message: 'При создании карточки переданы неверные данные!' });
-    }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    next(err);
   }
 };
 
-module.exports.deleteCard = async (req, res) => {
+module.exports.deleteCard = async (req, res, next) => {
   try {
     const { cardId } = req.params;
+    const userId = req.user._id;
     const card = await Card.findByIdAndRemove({ _id: cardId });
     if (!card) {
       throw new NotFoundError('Такого id не существует!', 'NotFoundError');
     }
+    if (userId !== card.owner) {
+      throw new NotFoundError('Вы не имеете права удалять чужие карточки!', 'NotFoundError');
+    }
     res.send({ card });
   } catch (err) {
-    if (err.name === 'CastError') {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({ message: 'Запрашиваемая карточка не найдена!' });
-    }
-    if (err.errorName === 'NotFoundError') {
-      return res.status(err.status).send({ message: err.message });
-    }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    next(err);
   }
 };
 
-module.exports.addLikeToCard = async (req, res) => {
+module.exports.addLikeToCard = async (req, res, next) => {
   try {
     const cardWithLike = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -76,24 +51,11 @@ module.exports.addLikeToCard = async (req, res) => {
     }
     res.send({ cardWithLike });
   } catch (err) {
-    if (err.name === 'CastError') {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({ message: 'Запрашиваемая карточка не найдена!' });
-    }
-    if (err.errorName === 'NotFoundError') {
-      return res.status(err.status).send({ message: err.message });
-    }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    next(err);
   }
 };
 
-module.exports.deleteLikeFromCard = async (req, res) => {
+module.exports.deleteLikeFromCard = async (req, res, next) => {
   try {
     const cardWithoutLike = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -105,19 +67,6 @@ module.exports.deleteLikeFromCard = async (req, res) => {
     }
     res.send({ cardWithoutLike });
   } catch (err) {
-    if (err.name === 'CastError') {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({ message: 'Запрашиваемая карточка не найдена!' });
-    }
-    if (err.errorName === 'NotFoundError') {
-      return res.status(err.status).send({ message: err.message });
-    }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    next(err);
   }
 };

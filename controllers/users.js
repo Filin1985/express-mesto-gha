@@ -1,24 +1,26 @@
-const { SERVER_ERROR, INCORRECT_DATA_ERROR } = require('../errors/config');
+/* eslint-disable import/no-extraneous-dependencies */
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { RequestError } = require('../errors/RequestError');
+const { UserExistError } = require('../errors/UserExistError');
 
 const User = require('../models/user');
 
-module.exports.getUsers = async (req, res) => {
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+const SALT = 10;
+
+module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.send({ users });
   } catch (err) {
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка cервера!' });
+    next(err);
   }
 };
 
-module.exports.getUserById = async (req, res) => {
+module.exports.getUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const user = await User.findById({ _id: userId });
@@ -27,44 +29,28 @@ module.exports.getUserById = async (req, res) => {
     }
     res.send({ user });
   } catch (err) {
-    if (err.name === 'CastError') {
-      return res
-        .status(INCORRECT_DATA_ERROR)
-        .send({ message: 'Запрашиваемый пользователь не найден!' });
-    }
-    if (err.errorName === 'NotFoundError') {
-      return res.status(err.status).send({ message: err.message });
-    }
-    console.log(
-      `Статус ${err.statusCode}. Ошибка ${err.name} c текстом ${err.errorName}`,
-    );
-    return res
-      .status(err.message)
-      .send({ message: 'Внутрення ошибка сервера!' });
+    next(err);
   }
 };
 
-module.exports.createNewUser = async (req, res) => {
+module.exports.createNewUser = async (req, res, next) => {
   try {
-    const { name, about, avatar } = req.body;
-    const newUser = await User.create({ name, about, avatar });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      throw new UserExistError('Пользователь с таким email уже существует!', 'UserExistError');
+    }
+    const hashedPassword = await bcrypt.hash(password, SALT);
+    const newUser = await User.create({
+      ...req.body, password: hashedPassword,
+    });
     res.status(201).send({ newUser });
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      return res.status(INCORRECT_DATA_ERROR).send({
-        message: 'При создании пользователя переданы неверные данные!',
-      });
-    }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    next(err);
   }
 };
 
-module.exports.updateUserProfile = async (req, res) => {
+module.exports.updateUserProfile = async (req, res, next) => {
   try {
     const owner = req.user._id;
     const { name, about } = req.body;
@@ -90,24 +76,24 @@ module.exports.updateUserProfile = async (req, res) => {
       throw new Error('У вас нет прав на редактирование данного пользователя!');
     }
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      return res.status(INCORRECT_DATA_ERROR).send({
-        message: 'При обновлении пользователя переданы неверные данные!',
-      });
-    }
-    if (err.errorName === 'RequestError') {
-      return res.status(err.status).send({ message: err.message });
-    }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка сервера!' });
+    next(err);
   }
 };
 
-module.exports.updateUserAvatar = async (req, res) => {
+module.exports.getUserProfile = async (req, res, next) => {
+  try {
+    const ownerId = req.user._id;
+    const user = await User.findById({ _id: ownerId });
+    if (!user) {
+      throw new NotFoundError('Такого id не существует!', 'NotFoundError');
+    }
+    res.send({ user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.updateUserAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const owner = req.user._id;
@@ -123,16 +109,20 @@ module.exports.updateUserAvatar = async (req, res) => {
       throw new Error('У вас нет прав на редактирование данного пользователя!');
     }
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      return res.status(INCORRECT_DATA_ERROR).send({
-        message: 'При обновлении пользователя переданы неверные данные!',
-      });
+    next(err);
+  }
+};
+
+module.exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findUserByCredentials(email, password);
+    if (!user) {
+      throw new NotFoundError('Неправильные почта или пароль', 'NotFoundError');
     }
-    console.log(
-      `Статус ${err.status}. Ошибка ${err.name} c текстом ${err.message}`,
-    );
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Внутрення ошибка червера!' });
+    const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+    res.cookie('jwt', token, { httpOnly: true }).end();
+  } catch (err) {
+    next(err);
   }
 };
