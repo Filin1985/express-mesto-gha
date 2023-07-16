@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const { errors } = require('celebrate');
 
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
@@ -47,6 +48,7 @@ app.all('*', (req, res) => {
   res.status(404).send({ message: 'Такого запроса нет!' });
 });
 
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {
