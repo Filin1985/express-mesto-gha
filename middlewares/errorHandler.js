@@ -20,6 +20,9 @@ module.exports = (err, req, res, next) => {
   if (err.errorName === 'UserExistError') {
     return res.status(err.status).send({ message: err.message });
   }
+  if (err.errorName === 'ForbiddenError') {
+    return res.status(err.status).send({ message: err.message });
+  }
   if (err.name === 'CastError') {
     return res
       .status(INCORRECT_DATA_ERROR)
