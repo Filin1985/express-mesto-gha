@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config();
+const { celebrate, Joi } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -27,7 +28,15 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
 app.post('/signin', login);
-app.post('/signup', createNewUser);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    avatar: Joi.string().min(2).max(30).url(),
+    about: Joi.string().min(2).max(30),
+  }),
+}), createNewUser);
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
