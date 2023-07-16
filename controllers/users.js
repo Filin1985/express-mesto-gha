@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { RequestError } = require('../errors/RequestError');
 const { UserExistError } = require('../errors/UserExistError');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 const User = require('../models/user');
 
@@ -118,7 +119,7 @@ module.exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
     if (!user) {
-      throw new NotFoundError('Неправильные почта или пароль', 'NotFoundError');
+      throw new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
     }
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
     res.cookie('jwt', token, { httpOnly: true }).end();

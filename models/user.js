@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -42,12 +44,12 @@ const userSchema = new mongoose.Schema({
   },
 }, { versionKey: false, toObject: { useProjection: true }, toJSON: { useProjection: true } });
 
-// eslint-disable-next-line func-names
+// eslint-disable-next-line func-names, no-unused-vars
 userSchema.statics.findUserByCredentials = async function (email, password, next) {
   try {
     const user = await this.findOne({ email }).select('+password');
     if (!user) {
-      return Promise.reject(new Error('Неправильные почта или пароль'));
+      throw new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
     }
 
     try {
@@ -58,10 +60,10 @@ userSchema.statics.findUserByCredentials = async function (email, password, next
 
       return user;
     } catch (error) {
-      next(error);
+      console.log(error);
     }
   } catch (error) {
-    next(error);
+    console.log(error);
   }
 };
 
