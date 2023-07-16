@@ -1,5 +1,6 @@
 const { SERVER_ERROR, INCORRECT_DATA_ERROR } = require('../errors/config');
 
+// eslint-disable-next-line no-unused-vars
 module.exports = (err, req, res, next) => {
   if (err.name === 'ValidationError') {
     return res.status(INCORRECT_DATA_ERROR).send({
