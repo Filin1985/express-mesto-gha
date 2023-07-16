@@ -36,11 +36,11 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    select: false,
     required: [true, 'Поле "password" должно быть заполнено'],
     minlength: [8, 'Минимальная длина поля "password" - 8'],
-    select: false,
   },
-}, { versionKey: false });
+}, { versionKey: false, toObject: { useProjection: true }, toJSON: { useProjection: true } });
 
 // eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = async function (email, password, next) {
