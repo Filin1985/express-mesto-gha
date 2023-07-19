@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { NotFoundError } = require('../errors/NotFoundError');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 const User = require('../models/user');
 
@@ -105,6 +106,6 @@ module.exports.login = async (req, res, next) => {
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
     res.cookie('jwt', token, { httpOnly: true }).send({ token }).end();
   } catch (err) {
-    next(err);
+    next(new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError'));
   }
 };

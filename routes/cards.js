@@ -23,17 +23,17 @@ router.post('/', celebrate({
 }), createNewCard);
 router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().min(24).max(24),
+    cardId: Joi.string().required().length(24).hex(),
   }),
 }), deleteCard);
 router.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().min(24).max(24),
+    cardId: Joi.string().required().length(24).hex(),
   }),
 }), addLikeToCard);
 router.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().min(24).max(24),
+    cardId: Joi.string().required().length(24).hex(),
   }),
 }), deleteLikeFromCard);
 
