@@ -36,11 +36,7 @@ module.exports.getUserById = async (req, res, next) => {
 
 module.exports.createNewUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (user) {
-      throw new UserExistError('Пользователь с таким email уже существует!', 'UserExistError');
-    }
+    const { password } = req.body;
     const hashedPassword = await bcrypt.hash(password, SALT);
     const newUser = await User.create({
       ...req.body, password: hashedPassword,
@@ -54,23 +50,13 @@ module.exports.createNewUser = async (req, res, next) => {
 module.exports.updateUserProfile = async (req, res, next) => {
   try {
     const owner = req.user._id;
-    const { name, about } = req.body;
-    const isValidLength = name?.length > 2
-    && name?.length < 30
-      && about?.length > 2
-      && about?.length < 30;
-    if (!isValidLength) {
-      throw new RequestError(
-        'Количество символов в полях не должны быть меньше 2 и больше 30!',
-        'RequestError',
-      );
-    }
     const userForUpdate = await User.findById({ _id: owner });
     if (userForUpdate) {
       const updatedUser = await User.findByIdAndUpdate(
         { _id: owner },
         { ...req.body },
         { new: true },
+        { runValidators: true },
       );
       res.send({ updatedUser });
     } else {
@@ -104,6 +90,7 @@ module.exports.updateUserAvatar = async (req, res, next) => {
         { _id: owner },
         { avatar },
         { new: true },
+        { runValidators: true },
       );
       res.send({ updatedUser });
     } else {
@@ -118,9 +105,6 @@ module.exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
-    if (!user) {
-      throw new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
-    }
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
     res.cookie('jwt', token, { httpOnly: true }).send({ token }).end();
   } catch (err) {

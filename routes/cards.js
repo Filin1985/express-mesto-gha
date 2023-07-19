@@ -8,7 +8,7 @@ const {
   addLikeToCard,
   deleteLikeFromCard,
 } = require('../controllers/cards');
-const { REG_EXP } = require('./config');
+const { REG_EXP } = require('../config');
 
 router.get('/', getCards);
 router.post('/', celebrate({

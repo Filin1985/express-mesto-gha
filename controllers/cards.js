@@ -47,9 +47,9 @@ module.exports.addLikeToCard = async (req, res, next) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     );
-    if (!cardWithLike) {
-      throw new NotFoundError('Такого id не существует!', 'NotFoundError');
-    }
+    // if (!cardWithLike) {
+    //   throw new NotFoundError('Такого id не существует!', 'NotFoundError');
+    // }
     res.send({ cardWithLike });
   } catch (err) {
     next(err);
@@ -63,9 +63,9 @@ module.exports.deleteLikeFromCard = async (req, res, next) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     );
-    if (!cardWithoutLike) {
-      throw new NotFoundError('Такого id не существует!', 'NotFoundError');
-    }
+    // if (!cardWithoutLike) {
+    //   throw new NotFoundError('Такого id не существует!', 'NotFoundError');
+    // }
     res.send({ cardWithoutLike });
   } catch (err) {
     next(err);
