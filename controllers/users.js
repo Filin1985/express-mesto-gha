@@ -51,14 +51,13 @@ module.exports.updateUserProfile = async (req, res, next) => {
     const userForUpdate = await User.findById({ _id: owner });
     if (userForUpdate) {
       const updatedUser = await User.findByIdAndUpdate(
-        { _id: owner },
+        owner,
         { ...req.body },
-        { new: true },
-        { runValidators: true },
+        { new: true, runValidators: true },
       );
       res.send({ updatedUser });
     } else {
-      throw new Error('У вас нет прав на редактирование данного пользователя!');
+      throw new UnauthorizedError('У вас нет прав на редактирование данного пользователя!', 'UnauthorizedError');
     }
   } catch (err) {
     next(err);
@@ -85,14 +84,13 @@ module.exports.updateUserAvatar = async (req, res, next) => {
     const userForUpdate = await User.findById({ _id: owner });
     if (userForUpdate) {
       const updatedUser = await User.findByIdAndUpdate(
-        { _id: owner },
+        owner,
         { avatar },
-        { new: true },
-        { runValidators: true },
+        { new: true, runValidators: true },
       );
       res.send({ updatedUser });
     } else {
-      throw new Error('У вас нет прав на редактирование данного пользователя!');
+      throw UnauthorizedError('У вас нет прав на редактирование данного пользователя!', 'UnauthorizedError');
     }
   } catch (err) {
     next(err);
@@ -104,8 +102,8 @@ module.exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-    res.cookie('jwt', token, { httpOnly: true }).end();
+    res.cookie('token', token, { httpOnly: true }).send().end();
   } catch (err) {
-    next(new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError'));
+    next(UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError'));
   }
 };
