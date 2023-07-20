@@ -1,5 +1,5 @@
 const { NotFoundError } = require('../errors/NotFoundError');
-const { ForbiddenError } = require('../errors/ForbiddenError');
+// const { ForbiddenError } = require('../errors/ForbiddenError');
 
 const Card = require('../models/card');
 
