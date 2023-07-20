@@ -8,7 +8,8 @@ const {
   updateUserAvatar,
   getUserProfile,
 } = require('../controllers/users');
-const { REG_EXP } = require('../config');
+// eslint-disable-next-line camelcase
+const { URl_VALIDATOR_REG_EXP } = require('../config');
 
 router.get('/', getUsers);
 router.get('/me', getUserProfile);
@@ -27,7 +28,7 @@ router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string()
       .required()
-      .pattern(new RegExp(REG_EXP)),
+      .pattern(new RegExp(URl_VALIDATOR_REG_EXP)),
   }),
 }), updateUserAvatar);
 

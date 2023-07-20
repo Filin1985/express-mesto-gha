@@ -15,7 +15,9 @@ const { NotFoundError } = require('./errors/NotFoundError');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
-const REG_EXP = '/(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g';
+// eslint-disable-next-line camelcase
+const { URl_VALIDATOR_REG_EXP } = require('./config');
+
 
 mongoose
   .connect(DB_URL, {
@@ -41,7 +43,7 @@ app.post('/signup', celebrate({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
     name: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(new RegExp(REG_EXP)).min(2).max(30),
+    avatar: Joi.string().pattern(new RegExp(URl_VALIDATOR_REG_EXP)).min(2).max(30),
     about: Joi.string().min(2).max(30),
   }),
 }), createNewUser);
