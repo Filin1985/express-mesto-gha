@@ -1,5 +1,5 @@
 const { NotFoundError } = require('../errors/NotFoundError');
-// const { ForbiddenError } = require('../errors/ForbiddenError');
+const { ForbiddenError } = require('../errors/ForbiddenError');
 
 const Card = require('../models/card');
 
@@ -27,14 +27,14 @@ module.exports.deleteCard = async (req, res, next) => {
   try {
     const { cardId } = req.params;
     const userId = req.user._id;
-    const card = await Card.findOne({ _id: cardId, owner: userId });
+    const card = await Card.findById({ _id: cardId });
     if (!card) {
       throw new NotFoundError('Такого id не существует!', 'NotFoundError');
     }
-    // if (userId !== card.owner.valueOf()) {
-    //   throw new ForbiddenError('Вы не имеете права удалять чужие карточки!', 'ForbiddenError');
-    // }
-    Card.remove({ _id: card._id });
+    if (userId !== card.owner.valueOf()) {
+      throw new ForbiddenError('Вы не имеете права удалять чужие карточки!', 'ForbiddenError');
+    }
+    await Card.remove({ _id: cardId });
     res.send({ card });
   } catch (err) {
     next(err);
