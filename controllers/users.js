@@ -67,6 +67,7 @@ module.exports.updateUserProfile = async (req, res, next) => {
 module.exports.getUserProfile = async (req, res, next) => {
   try {
     const ownerId = req.user._id;
+    console.log(ownerId);
     const user = await User.findById({ _id: ownerId });
     if (!user) {
       throw new NotFoundError('Такого id не существует!', 'NotFoundError');
@@ -102,8 +103,8 @@ module.exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-    res.cookie('token', token, { httpOnly: true });
-    res.status(200).send({ token });
+    res.cookie('jwt', token, { httpOnly: true });
+    res.status(200).send({ user });
   } catch (err) {
     next(new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError'));
   }
