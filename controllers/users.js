@@ -102,7 +102,8 @@ module.exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-    res.cookie('jwt', token, { httpOnly: true }).send({ token }).end();
+    res.cookie('token', token, { httpOnly: true });
+    res.status(200).send({ user });
   } catch (err) {
     next(new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError'));
   }
