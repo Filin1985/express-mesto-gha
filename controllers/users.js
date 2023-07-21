@@ -103,6 +103,6 @@ module.exports.login = async (req, res, next) => {
     res.cookie('jwt', token, { httpOnly: true });
     res.status(200).send({ user });
   } catch (err) {
-    next(new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError'));
+    next(err);
   }
 };
