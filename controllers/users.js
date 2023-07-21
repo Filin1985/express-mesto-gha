@@ -49,16 +49,15 @@ module.exports.updateUserProfile = async (req, res, next) => {
   try {
     const owner = req.user._id;
     const userForUpdate = await User.findById({ _id: owner });
-    if (userForUpdate) {
-      const updatedUser = await User.findByIdAndUpdate(
-        owner,
-        { ...req.body },
-        { new: true, runValidators: true },
-      );
-      res.send({ updatedUser });
-    } else {
-      throw new UnauthorizedError('У вас нет прав на редактирование данного пользователя!', 'UnauthorizedError');
+    if (!userForUpdate) {
+      throw new NotFoundError('Такого пользователя не существует!', 'NotFoundError');
     }
+    const updatedUser = await User.findByIdAndUpdate(
+      owner,
+      { ...req.body },
+      { new: true, runValidators: true },
+    );
+    res.send({ updatedUser });
   } catch (err) {
     next(err);
   }
@@ -82,16 +81,15 @@ module.exports.updateUserAvatar = async (req, res, next) => {
     const { avatar } = req.body;
     const owner = req.user._id;
     const userForUpdate = await User.findById({ _id: owner });
-    if (userForUpdate) {
-      const updatedUser = await User.findByIdAndUpdate(
-        owner,
-        { avatar },
-        { new: true, runValidators: true },
-      );
-      res.send({ updatedUser });
-    } else {
-      throw UnauthorizedError('У вас нет прав на редактирование данного пользователя!', 'UnauthorizedError');
+    if (!userForUpdate) {
+      throw new NotFoundError('Такого пользователя не существует!', 'NotFoundError');
     }
+    const updatedUser = await User.findByIdAndUpdate(
+      owner,
+      { avatar },
+      { new: true, runValidators: true },
+    );
+    res.send({ updatedUser });
   } catch (err) {
     next(err);
   }
