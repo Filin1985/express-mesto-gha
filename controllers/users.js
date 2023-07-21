@@ -67,7 +67,6 @@ module.exports.updateUserProfile = async (req, res, next) => {
 module.exports.getUserProfile = async (req, res, next) => {
   try {
     const ownerId = req.user._id;
-    console.log(ownerId);
     const user = await User.findById({ _id: ownerId });
     if (!user) {
       throw new NotFoundError('Такого id не существует!', 'NotFoundError');

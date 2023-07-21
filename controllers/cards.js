@@ -27,13 +27,14 @@ module.exports.deleteCard = async (req, res, next) => {
   try {
     const { cardId } = req.params;
     const userId = req.user._id;
-    const card = await Card.findByIdAndRemove({ _id: cardId, owner: userId });
+    const card = await Card.findOne({ _id: cardId, owner: userId });
     if (!card) {
       throw new NotFoundError('Такого id не существует!', 'NotFoundError');
     }
     // if (userId !== card.owner.valueOf()) {
     //   throw new ForbiddenError('Вы не имеете права удалять чужие карточки!', 'ForbiddenError');
     // }
+    Card.remove({ _id: card._id });
     res.send({ card });
   } catch (err) {
     next(err);
