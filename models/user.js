@@ -43,14 +43,14 @@ const userSchema = new mongoose.Schema({
 }, { versionKey: false, toObject: { useProjection: true }, toJSON: { useProjection: true } });
 
 // eslint-disable-next-line func-names, no-unused-vars
-userSchema.statics.findUserByCredentials = async function (email, password, next) {
+userSchema.statics.findUserByCredentials = async function (email, password) {
   const user = await this.findOne({ email }).select('+password');
   if (!user) {
-    return new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
+    throw new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
   }
   const matched = await bcrypt.compare(password, user.password);
   if (!matched) {
-    return new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
+    throw new UnauthorizedError('Неправильные почта или пароль', 'UnauthorizedError');
   }
 
   return user;
